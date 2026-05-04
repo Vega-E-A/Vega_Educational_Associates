@@ -6,8 +6,11 @@ import {
   Rocket,
   ArrowUpRight,
   BrainCircuit,
-  Monitor
+  Monitor,
+  QrCode,
+  LayoutGrid
 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 
 // --- Sub-components for Mission Control UI ---
 
@@ -198,11 +201,32 @@ export default function App() {
         </div>
       </main>
 
-      <footer className="p-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 opacity-40 hover:opacity-100 transition-opacity duration-500 mt-20">
+      <footer className="p-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 opacity-60 hover:opacity-100 transition-opacity duration-500 mt-20 bg-white/[0.02]">
         <div className="flex flex-col">
           <div className="text-xl font-black text-white italic tracking-tighter">VEGA.</div>
           <div className="label-mono mt-1">&copy; 2026 Educational Associates</div>
         </div>
+
+        <div className="flex items-center gap-6 p-4 rounded-2xl bg-white/5 border border-white/10">
+          <div className="bg-white p-2 rounded-lg">
+            <QRCodeSVG 
+              value={typeof window !== 'undefined' ? window.location.href : 'https://vega-educational-associates.github.io'} 
+              size={80}
+              level="H"
+              includeMargin={false}
+            />
+          </div>
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2 text-blue-400 mb-1">
+              <QrCode size={14} />
+              <span className="label-mono text-[10px] uppercase font-bold tracking-[0.2em]">Live Access</span>
+            </div>
+            <div className="text-[10px] text-slate-400 font-mono leading-relaxed max-w-[150px]">
+              Scan to follow the presentation on your device.
+            </div>
+          </div>
+        </div>
+
         <div className="flex flex-wrap justify-center gap-x-12 gap-y-4">
           <a href="#" className="label-mono hover:text-blue-400 transition-colors">Directives</a>
           <a href="#" className="label-mono hover:text-blue-400 transition-colors">Contact</a>
