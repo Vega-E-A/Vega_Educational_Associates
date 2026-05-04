@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Globe, 
   Search,
@@ -8,7 +8,12 @@ import {
   BrainCircuit,
   Monitor,
   QrCode,
-  LayoutGrid
+  LayoutGrid,
+  Send,
+  X,
+  Radio,
+  Clock,
+  ShieldCheck
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -65,6 +70,32 @@ const Navbar = () => {
 // --- Main App ---
 
 export default function App() {
+  const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isTransmitting, setIsTransmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+
+  const handleBroadcast = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsTransmitting(true);
+    
+    // Simulate signal transmission time
+    setTimeout(() => {
+      setIsTransmitting(false);
+      setIsSuccess(true);
+      
+      // Construct mailto as real action
+      const body = `Incoming Transmission from ${formData.name} (${formData.email}):\n\n${formData.message}`;
+      window.location.href = `mailto:Breslow.michael@gmail.com?subject=MISSION_CONTROL_BROADCAST&body=${encodeURIComponent(body)}`;
+      
+      setTimeout(() => {
+        setIsSuccess(false);
+        setIsContactOpen(false);
+        setFormData({ name: '', email: '', message: '' });
+      }, 3000);
+    }, 2500);
+  };
+
   return (
     <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans selection:bg-blue-500/30 selection:text-white flex flex-col relative">
       <div className="scanline" />
@@ -227,10 +258,148 @@ export default function App() {
           </div>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-x-12 gap-y-4">
-          <a href="#" className="label-mono hover:text-blue-400 transition-colors">Directives</a>
-          <a href="#" className="label-mono hover:text-blue-400 transition-colors">Contact</a>
+        <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-4">
+          <a 
+            href="http://mrbreslow.pbworks.com/w/page/161959401/Vega%20Educational%20Associates" 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="label-mono hover:text-blue-400 transition-colors"
+          >
+            Legacy Website
+          </a>
+          <button 
+            onClick={() => setIsContactOpen(true)}
+            className="group flex items-center gap-2 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 px-4 py-2 rounded-full transition-all cursor-pointer"
+          >
+            <Send size={14} className="text-blue-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            <span className="label-mono text-blue-400">Establish Transmission</span>
+          </button>
         </div>
+
+        {/* Contact Modal */}
+        <AnimatePresence>
+          {isContactOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-6 sm:p-10">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => !isTransmitting && setIsContactOpen(false)}
+                className="absolute inset-0 bg-[#020408]/80 backdrop-blur-md"
+              />
+              
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="relative w-full max-w-lg bg-[#0a0f1a] border border-blue-500/20 rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/5"
+              >
+                {/* Header */}
+                <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                  <div>
+                    <div className="label-mono text-blue-500 text-[10px] mb-1">Subsystem: COMMS-01</div>
+                    <h2 className="text-xl font-bold text-white uppercase tracking-tight">Signal Uplink</h2>
+                  </div>
+                  <button 
+                    onClick={() => setIsContactOpen(false)}
+                    className="p-2 hover:bg-white/5 rounded-full transition-colors text-slate-500 hover:text-white"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                {/* Form Body */}
+                <div className="p-8">
+                  {isSuccess ? (
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-center py-12"
+                    >
+                      <div className="w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center mx-auto mb-6 text-blue-400">
+                        <ShieldCheck size={32} />
+                      </div>
+                      <h3 className="text-xl font-bold text-white mb-2">BROADCAST SUCCESSFUL</h3>
+                      <p className="label-mono text-slate-400 text-sm italic">Signal encoded and launched into the void.</p>
+                    </motion.div>
+                  ) : isTransmitting ? (
+                    <div className="py-12 text-center">
+                      <div className="relative w-32 h-32 mx-auto mb-8">
+                        <motion.div 
+                          animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
+                          transition={{ repeat: Infinity, duration: 1.5 }}
+                          className="absolute inset-0 rounded-full bg-blue-500/20"
+                        />
+                        <motion.div 
+                          animate={{ scale: [1, 1.8], opacity: [0.3, 0] }}
+                          transition={{ repeat: Infinity, duration: 1.5, delay: 0.5 }}
+                          className="absolute inset-0 rounded-full bg-blue-500/10"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center text-blue-400">
+                          <Radio size={40} className="animate-pulse" />
+                        </div>
+                      </div>
+                      <div className="label-mono text-blue-400 animate-pulse">Broadcasting Signal...</div>
+                      <div className="mt-4 text-[10px] text-slate-600 font-mono">ENCRYPTING DATA PACKETS // SECTOR 7G</div>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleBroadcast} className="space-y-6">
+                      <div className="space-y-2">
+                        <label className="label-mono text-[10px] text-blue-500/60 ml-1">TRANSMITTER IDENTITY</label>
+                        <input 
+                          required
+                          type="text"
+                          placeholder="Your Name"
+                          value={formData.name}
+                          onChange={(e) => setFormData({...formData, name: e.target.value})}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors label-mono"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="label-mono text-[10px] text-blue-500/60 ml-1">RETURN PROTOCOL (EMAIL)</label>
+                        <input 
+                          required
+                          type="email"
+                          placeholder="your.email@sector.com"
+                          value={formData.email}
+                          onChange={(e) => setFormData({...formData, email: e.target.value})}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors label-mono"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="label-mono text-[10px] text-blue-500/60 ml-1">SIGNAL DATA</label>
+                        <textarea 
+                          required
+                          rows={4}
+                          placeholder="Enter your transmission here..."
+                          value={formData.message}
+                          onChange={(e) => setFormData({...formData, message: e.target.value})}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors label-mono resize-none"
+                        />
+                      </div>
+                      <button 
+                        type="submit"
+                        className="w-full group flex items-center justify-center gap-3 bg-blue-500 text-white font-bold py-4 rounded-xl hover:bg-blue-400 transition-all shadow-lg shadow-blue-500/20 active:scale-95"
+                      >
+                        <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                        <span className="uppercase tracking-widest text-xs">Broadcast Signal</span>
+                      </button>
+                    </form>
+                  )}
+                </div>
+
+                {/* Footer status bar */}
+                <div className="bg-black/40 px-8 py-3 flex items-center justify-between border-t border-white/5">
+                  <div className="flex items-center gap-2 opacity-50">
+                    <Clock size={12} />
+                    <span className="label-mono text-[9px] uppercase">Real-time status: ACTIVE</span>
+                  </div>
+                  <div className="text-[9px] font-mono text-slate-700">COORD: 40.7128° N, 74.0060° W</div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
         <div className="label-mono text-slate-600">
           SECURE CONNECTION // TLS 1.4-V
         </div>
